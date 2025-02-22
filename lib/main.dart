@@ -35,7 +35,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
 
-  double _centi = 0.0;
+  double _height = 0.0;
+  double _weight = 0.0;
+  double _bmi = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -49,26 +51,38 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            Text('インチ'),
+            Text('身長(cm)'),
             TextField(
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 setState(() {
-                  if (value.isEmpty) {
-                    _centi = 0.0; // 空文字列の場合は _centi を 0 に設定
-                  } else {
-                    // 数値に変換できるかどうかをチェック
-                    if (double.tryParse(value) != null) {
-                      _centi = double.parse(value) * 2.54;
-                    }
-                  }
+                  _height= (double.tryParse(value) ?? 0) / 100;
                 });
               },
             ),
             SizedBox(
               height: 16,
             ),
-            Text('結果:$_centiセンチ'),
+                Text('体重(kg)'),
+                TextField(
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      _weight = double.tryParse(value) ?? 0;
+                        }
+                    );
+                  },
+                ),
+            SizedBox(
+              height: 16,
+            ),
+            ElevatedButton(onPressed: () {
+              setState(() {
+                _bmi = _weight / (_height * _height);
+              });
+            }, 
+                child: Text('計算する')),
+            Text('BMIは$_bmiです。'),
           ]),
         ));
   }
