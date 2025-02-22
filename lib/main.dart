@@ -48,40 +48,42 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('身長(cm)'),
             TextField(
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 setState(() {
-                  _height= (double.tryParse(value) ?? 0) / 100;
+                  _height = (double.tryParse(value) ?? 0) / 100;
                 });
               },
             ),
             SizedBox(
               height: 16,
             ),
-                Text('体重(kg)'),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      _weight = double.tryParse(value) ?? 0;
-                        }
-                    );
-                  },
-                ),
+            Text('体重(kg)'),
+            TextField(
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                setState(() {
+                  _weight = double.tryParse(value) ?? 0;
+                });
+              },
+            ),
             SizedBox(
               height: 16,
             ),
-            ElevatedButton(onPressed: () {
-              setState(() {
-                _bmi = _weight / (_height * _height);
-              });
-            }, 
+            ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _bmi = _weight / (_height * _height);
+                  });
+                },
                 child: Text('計算する')),
+            SizedBox(
+              height: 16,
+            ),
             Text('BMIは$_bmiです。'),
           ]),
         ));
