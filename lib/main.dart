@@ -76,6 +76,20 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
                 onPressed: () {
+
+                  if (_height <= 0) {
+                    setState(() {
+                      _bmi = 0;
+                    });
+                    return;
+                  }
+                  if (_weight <= 0) {
+                    setState(() {
+                      _bmi = 0;
+                    });
+                    return;
+                  }
+
                   setState(() {
                     _bmi = _weight / (_height * _height);
                   });
