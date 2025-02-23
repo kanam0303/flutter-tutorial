@@ -33,11 +33,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  void _pushPage() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return NextPage(id: 1, name: 'プッシュ呼び出し');
+    }));
+  }
 
+  void _modalPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return NextPage(id: 2, name: 'モーダル呼び出し');
+        },
+        fullscreenDialog: true,
+      ),
+    );
+  }
 
-  double _height = 0.0;
-  double _weight = 0.0;
-  double _bmi = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -46,60 +59,55 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(widget.title),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('身長(cm)'),
-            TextField(
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                setState(() {
-                  _height = (double.tryParse(value) ?? 0) / 100;
-                });
-              },
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Text('体重(kg)'),
-            TextField(
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                setState(() {
-                  _weight = double.tryParse(value) ?? 0;
-                });
-              },
-            ),
-            SizedBox(
-              height: 16,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: _pushPage,
+                child: Text('プッシュ遷移'),
+              ),
+              ElevatedButton(
+                onPressed: _modalPage,
+                child: Text('モーダル遷移'),
+              )
+            ]
+          ),
+        )
+    );
+  }
+}
+
+class NextPage extends StatelessWidget {
+
+  NextPage({required this.id, required this.name});
+  final int id;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(id == 1 ? 'Push Page' : 'Modal Page'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+                'Next Pageです。id: [$id], name: [$name]',
+                style: TextStyle(fontSize: 16),
             ),
             ElevatedButton(
-                onPressed: () {
-
-                  if (_height <= 0) {
-                    setState(() {
-                      _bmi = 0;
-                    });
-                    return;
-                  }
-                  if (_weight <= 0) {
-                    setState(() {
-                      _bmi = 0;
-                    });
-                    return;
-                  }
-
-                  setState(() {
-                    _bmi = _weight / (_height * _height);
-                  });
-                },
-                child: Text('計算する')),
-            SizedBox(
-              height: 16,
-            ),
-            Text('BMIは$_bmiです。'),
-          ]),
-        ));
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              // child: Text('戻る'),
+              child: Text(id == 1 ? '戻る' : '閉じる'),
+            )
+          ]
+        ),
+    )
+    );
   }
 }
