@@ -33,24 +33,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void _pushPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return NextPage(id: 1, name: 'プッシュ呼び出し');
-    }));
-  }
-
-  void _modalPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return NextPage(id: 2, name: 'モーダル呼び出し');
-        },
-        fullscreenDialog: true,
-      ),
-    );
-  }
-
+  List<Map<String, String>> contacts = [
+    {'name': '山田 太郎', 'number': '070-1234-567', 'address': '東京都'},
+    {'name': '鈴木 一郎', 'number': '080-1234-567', 'address': '神奈川県'},
+    {'name': '佐藤 花子', 'number': '090-1234-567', 'address': '大阪府'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -59,55 +46,94 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(widget.title),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: _pushPage,
-                child: Text('プッシュ遷移'),
-              ),
-              ElevatedButton(
-                onPressed: _modalPage,
-                child: Text('モーダル遷移'),
-              )
-            ]
-          ),
+        body: ListView.builder(
+            itemCount: contacts.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: Icon(Icons.phone),
+                title: Text(contacts[index]['name']!),
+                subtitle: Text(contacts[index]['number']!),
+                trailing: Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailPage(contact: contacts[index]),
+                  )
+                  );
+                },
+              );
+            }
         )
+
     );
   }
 }
 
-class NextPage extends StatelessWidget {
+class DetailPage extends StatelessWidget {
+  DetailPage({Key ? key, required this.contact}) : super(key: key);
 
-  NextPage({required this.id, required this.name});
-  final int id;
-  final String name;
-
+  final Map<String, String> contact;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(id == 1 ? 'Push Page' : 'Modal Page'),
+        title: Text(contact['name']!),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-                'Next Pageです。id: [$id], name: [$name]',
-                style: TextStyle(fontSize: 16),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  SizedBox(width: 30,),
+                  Icon(Icons.account_circle, size: 40),
+                  Text(
+                      '名前: ${contact['name']!}',
+                      style: TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  SizedBox(width: 30,),
+                  Icon(Icons.phone, size: 40,),
+                  Text(
+                      '電話: ${contact['number']!}',
+                      style: TextStyle(fontSize: 20),
+                      ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  SizedBox(width: 30,),
+                  Icon(Icons.home, size: 40,),
+                  Text(
+                      '住所: ${contact['address']!}',
+                      style: TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              // child: Text('戻る'),
-              child: Text(id == 1 ? '戻る' : '閉じる'),
-            )
-          ]
-        ),
-    )
+                onPressed: () {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.phone, size: 30),
+                    Text('電話をかける'),
+                  ],
+                ))
+        ]
+            ),
+      ),
     );
   }
 }
