@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'dart:async';
 void main() {
   runApp(const MyApp());
 }
@@ -17,123 +17,83 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+       home: const StopWatch(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-
-  final String title;
+class StopWatch extends StatefulWidget {
+  const StopWatch({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<StopWatch> createState() => _StopWatchState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<Map<String, String>> contacts = [
-    {'name': '山田 太郎', 'number': '070-1234-567', 'address': '東京都'},
-    {'name': '鈴木 一郎', 'number': '080-1234-567', 'address': '神奈川県'},
-    {'name': '佐藤 花子', 'number': '090-1234-567', 'address': '大阪府'},
-  ];
+class _StopWatchState extends State<StopWatch> {
+  Timer _timer = Timer(Duration.zero, () {});
+  final Stopwatch _stopwatch = Stopwatch();
+  String _time = '00:00:000';
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-        ),
-        body: ListView.builder(
-            itemCount: contacts.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: Icon(Icons.phone),
-                title: Text(contacts[index]['name']!),
-                subtitle: Text(contacts[index]['number']!),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailPage(contact: contacts[index]),
-                  )
-                  );
-                },
-              );
-            }
-        )
-
-    );
+  void _startTimer() {
+    _stopwatch.start();
+    _timer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+      setState(() {
+        final Duration elapsed = _stopwatch.elapsed;
+        final String minute = elapsed.inMinutes.toString().padLeft(2, '0');
+        final String second = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
+        final String millisecond = (elapsed.inMilliseconds % 1000).toString().padLeft(3, '0');
+        _time = '$minute:$second:$millisecond';
+      });
+    });
   }
-}
 
-class DetailPage extends StatelessWidget {
-  DetailPage({Key ? key, required this.contact}) : super(key: key);
+  void _stopTimer() {
+    if(_stopwatch.isRunning) {
+      _stopwatch.stop();
+      _timer.cancel();
+    }
+  }
 
-  final Map<String, String> contact;
+  void _resetTimer() {
+    _stopwatch.reset();
+    _time = '00:00:000';
+    setState(() {});
+    }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(contact['name']!),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('StopWatch'),
       ),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  SizedBox(width: 30,),
-                  Icon(Icons.account_circle, size: 40),
-                  Text(
-                      '名前: ${contact['name']!}',
-                      style: TextStyle(fontSize: 20),
-                  ),
-                ],
-              ),
+            Text('経過時間'),
+            Text(
+              _time,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  SizedBox(width: 30,),
-                  Icon(Icons.phone, size: 40,),
-                  Text(
-                      '電話: ${contact['number']!}',
-                      style: TextStyle(fontSize: 20),
-                      ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _startTimer,
+                  child: const Text('Start'),
+                ),
+                ElevatedButton(
+                    onPressed: _stopTimer,
+                    child: Text('Stop')),
+                ElevatedButton(
+                    onPressed: _resetTimer,
+                    child: Text('Reset')),
+              ]
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  SizedBox(width: 30,),
-                  Icon(Icons.home, size: 40,),
-                  Text(
-                      '住所: ${contact['address']!}',
-                      style: TextStyle(fontSize: 20),
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
-                onPressed: () {},
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.phone, size: 30),
-                    Text('電話をかける'),
-                  ],
-                ))
         ]
-            ),
       ),
+    ),
     );
   }
 }
