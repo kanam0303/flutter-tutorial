@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'dart:math';
 void main() {
   runApp(const MyApp());
 }
@@ -17,83 +17,84 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-       home: const StopWatch(),
+       home: const NumberGuessGame(),
     );
   }
 }
 
-class StopWatch extends StatefulWidget {
-  const StopWatch({super.key});
+class NumberGuessGame extends StatefulWidget {
+  const NumberGuessGame({super.key});
 
   @override
-  State<StopWatch> createState() => _StopWatchState();
+  State<NumberGuessGame> createState() => _NumberGuessGameState();
 }
 
-class _StopWatchState extends State<StopWatch> {
-  Timer _timer = Timer(Duration.zero, () {});
-  final Stopwatch _stopwatch = Stopwatch();
-  String _time = '00:00:000';
+class _NumberGuessGameState extends State<NumberGuessGame> {
+  int _numberToGuess = Random().nextInt(100) + 1;
+  String _message = '私が思い浮かべている数字はなんでしょうか？(1~100)';
+  TextEditingController _controller = TextEditingController();
+  int _count = 0;
 
-  void _startTimer() {
-    _stopwatch.start();
-    _timer = Timer.periodic(const Duration(milliseconds: 1), (timer) {
+  void _guessNumber() {
+    int? userGuess = int.tryParse(_controller.text);
+    if(userGuess == null || userGuess <= 0 || userGuess > 100) {
+      _message = '1~100の数値を入れてください。';
       setState(() {
-        final Duration elapsed = _stopwatch.elapsed;
-        final String minute = elapsed.inMinutes.toString().padLeft(2, '0');
-        final String second = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
-        final String millisecond = (elapsed.inMilliseconds % 1000).toString().padLeft(3, '0');
-        _time = '$minute:$second:$millisecond';
+        _controller.clear();
       });
+      return;
+    }
+    else if (userGuess == _numberToGuess) {
+      _count++;
+      _message = 'おめでとうございます！「$userGuess」で正解です！\n${_count}回目で当てました。\n新しい数字を思い浮かべます。';
+      _numberToGuess = Random().nextInt(100) + 1;
+      _count = 0;
+    }
+    else if (userGuess > _numberToGuess) {
+      _count++;
+      _message = '「$userGuess」は大きすぎます！もう一度試してみてください。';
+    }
+    else if (userGuess < _numberToGuess) {
+      _count++;
+      _message = '「$userGuess」は小さすぎます！もう一度試してみてください。';
+    }
+    setState(() {
+      _controller.clear();
     });
   }
 
-  void _stopTimer() {
-    if(_stopwatch.isRunning) {
-      _stopwatch.stop();
-      _timer.cancel();
-    }
-  }
-
-  void _resetTimer() {
-    _stopwatch.reset();
-    _time = '00:00:000';
-    setState(() {});
-    }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('StopWatch'),
+        title: const Text('Number Guessing Game'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('経過時間'),
             Text(
-              _time,
-              style: Theme.of(context).textTheme.headlineMedium,
+              _message,
+              style: TextStyle(fontSize: 24),
+
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _startTimer,
-                  child: const Text('Start'),
-                ),
-                ElevatedButton(
-                    onPressed: _stopTimer,
-                    child: Text('Stop')),
-                ElevatedButton(
-                    onPressed: _resetTimer,
-                    child: Text('Reset')),
-              ]
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                hintText: '数字を入力してください。',
+              ),
+              keyboardType: TextInputType.number,
             ),
-        ]
+            ElevatedButton(
+              onPressed: _guessNumber,
+              child: const Text('予想を回答する。'),
+            )
+          ],
+        ),
       ),
-    ),
     );
   }
 }
+
